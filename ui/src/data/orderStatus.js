@@ -1,6 +1,6 @@
 export const ORDER_STATUS = {
   RECEIVED: 'received',
-  IN_PROGRESS: 'inProgress',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 }
 

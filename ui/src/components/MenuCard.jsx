@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { OPTIONS } from '../data/menus'
 import { formatPrice } from '../utils/format'
 
 function MenuCard({ menu, onAdd }) {
@@ -21,8 +20,8 @@ function MenuCard({ menu, onAdd }) {
   return (
     <article className="menu-card">
       <div className="menu-card__image">
-        {menu.image ? (
-          <img src={menu.image} alt={menu.name} />
+        {menu.imageUrl ? (
+          <img src={menu.imageUrl} alt={menu.name} />
         ) : (
           <span aria-hidden="true">{menu.name}</span>
         )}
@@ -32,7 +31,7 @@ function MenuCard({ menu, onAdd }) {
         <p className="menu-card__price">{formatPrice(menu.price)}</p>
         <p className="menu-card__description">{menu.description}</p>
         <ul className="menu-card__options">
-          {OPTIONS.map((option) => (
+          {menu.options.map((option) => (
             <li key={option.id}>
               <label>
                 <input

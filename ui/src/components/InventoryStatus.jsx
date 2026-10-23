@@ -14,7 +14,7 @@ function InventoryStatus({ inventory, onChangeStock }) {
         {inventory.map((item) => {
           const level = getStockLevel(item.stock)
           return (
-            <article key={item.menuId} className="inventory__card">
+            <article key={item.id} className="inventory__card">
               <div className="inventory__header">
                 <h3 className="inventory__name">{item.name}</h3>
                 <span className={`badge badge--${level.modifier}`}>
@@ -26,7 +26,7 @@ function InventoryStatus({ inventory, onChangeStock }) {
                 <button
                   type="button"
                   className="button"
-                  onClick={() => onChangeStock(item.menuId, -1)}
+                  onClick={() => onChangeStock(item.id, -1)}
                   disabled={item.stock === 0}
                   aria-label={`${item.name} 재고 감소`}
                 >
@@ -35,7 +35,7 @@ function InventoryStatus({ inventory, onChangeStock }) {
                 <button
                   type="button"
                   className="button"
-                  onClick={() => onChangeStock(item.menuId, 1)}
+                  onClick={() => onChangeStock(item.id, 1)}
                   aria-label={`${item.name} 재고 증가`}
                 >
                   +

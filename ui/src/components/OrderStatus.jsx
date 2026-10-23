@@ -34,7 +34,7 @@ function OrderStatus({ orders, onAdvanceOrder }) {
                     <ul className="orders__items">
                       {order.items.map((item, index) => (
                         <li key={index}>
-                          {item.name}
+                          {item.menuName}
                           {item.options.length > 0 && (
                             <small className="orders__options">
                               ({item.options.join(', ')})

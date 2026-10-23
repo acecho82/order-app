@@ -1,72 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Header from './components/Header'
 import OrderPage from './pages/OrderPage'
 import AdminPage from './pages/AdminPage'
-import { MENUS } from './data/menus'
-import { ORDER_STATUS, NEXT_ORDER_STATUS } from './data/orderStatus'
+import * as api from './api'
+import { NEXT_ORDER_STATUS } from './data/orderStatus'
 import './App.css'
-
-const INITIAL_STOCK = 10
-const STOCK_MENU_COUNT = 3
 
 function App() {
   const [currentPage, setCurrentPage] = useState('order')
+  const [menus, setMenus] = useState([])
   const [orders, setOrders] = useState([])
-  const [inventory, setInventory] = useState(() =>
-    MENUS.slice(0, STOCK_MENU_COUNT).map((menu) => ({
-      menuId: menu.id,
-      name: menu.name,
-      stock: INITIAL_STOCK,
-    })),
-  )
+  const [loadError, setLoadError] = useState(null)
 
-  const handleCreateOrder = (cartItems) => {
-    const items = cartItems.map((item) => ({
-      name: item.menu.name,
-      options: item.options.map((option) => option.name),
-      quantity: item.quantity,
-      price: item.unitPrice * item.quantity,
-    }))
-    const order = {
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-      items,
-      totalPrice: items.reduce((sum, item) => sum + item.price, 0),
-      status: ORDER_STATUS.RECEIVED,
+  useEffect(() => {
+    let ignore = false
+    Promise.all([api.getMenus(), api.getOrders()])
+      .then(([nextMenus, nextOrders]) => {
+        if (ignore) return
+        setMenus(nextMenus)
+        setOrders(nextOrders)
+        setLoadError(null)
+      })
+      .catch((err) => {
+        if (!ignore) setLoadError(err.message)
+      })
+    return () => {
+      ignore = true
     }
+  }, [currentPage])
+
+  const handleCreateOrder = async (cartItems) => {
+    const order = await api.createOrder(
+      cartItems.map((item) => ({
+        menuId: item.menu.id,
+        quantity: item.quantity,
+        optionIds: item.options.map((option) => option.id),
+      })),
+    )
     setOrders((prev) => [order, ...prev])
+    setMenus(await api.getMenus())
   }
 
-  const handleChangeStock = (menuId, delta) => {
-    setInventory((prev) =>
-      prev.map((item) =>
-        item.menuId === menuId
-          ? { ...item, stock: Math.max(0, item.stock + delta) }
-          : item,
-      ),
-    )
+  const handleChangeStock = async (menuId, delta) => {
+    try {
+      const updated = await api.updateStock(menuId, delta)
+      setMenus((prev) =>
+        prev.map((menu) =>
+          menu.id === updated.id ? { ...menu, stock: updated.stock } : menu,
+        ),
+      )
+    } catch (err) {
+      alert(err.message)
+    }
   }
 
-  const handleAdvanceOrder = (orderId) => {
-    setOrders((prev) =>
-      prev.map((order) => {
-        const nextStatus = NEXT_ORDER_STATUS[order.status]
-        return order.id === orderId && nextStatus
-          ? { ...order, status: nextStatus }
-          : order
-      }),
-    )
+  const handleAdvanceOrder = async (orderId) => {
+    const order = orders.find((item) => item.id === orderId)
+    const nextStatus = order && NEXT_ORDER_STATUS[order.status]
+    if (!nextStatus) return
+
+    try {
+      const updated = await api.updateOrderStatus(orderId, nextStatus)
+      setOrders((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item)),
+      )
+    } catch (err) {
+      alert(err.message)
+    }
   }
 
   return (
     <div className="app">
       <Header currentPage={currentPage} onNavigate={setCurrentPage} />
+      {loadError && <p className="app__error">{loadError}</p>}
       {currentPage === 'order' ? (
-        <OrderPage onCreateOrder={handleCreateOrder} />
+        <OrderPage menus={menus} onCreateOrder={handleCreateOrder} />
       ) : (
         <AdminPage
           orders={orders}
-          inventory={inventory}
+          inventory={menus}
           onChangeStock={handleChangeStock}
           onAdvanceOrder={handleAdvanceOrder}
         />

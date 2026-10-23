@@ -1,6 +1,6 @@
 import { formatPrice } from '../utils/format'
 
-function Cart({ items, onOrder }) {
+function Cart({ items, onOrder, isSubmitting }) {
   const totalPrice = items.reduce(
     (sum, item) => sum + item.unitPrice * item.quantity,
     0,
@@ -42,9 +42,9 @@ function Cart({ items, onOrder }) {
           type="button"
           className="button button--primary"
           onClick={onOrder}
-          disabled={isEmpty}
+          disabled={isEmpty || isSubmitting}
         >
-          주문하기
+          {isSubmitting ? '주문 중...' : '주문하기'}
         </button>
       </div>
     </section>

@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import MenuCard from '../components/MenuCard'
 import Cart from '../components/Cart'
-import { MENUS, OPTIONS } from '../data/menus'
 
-function OrderPage({ onCreateOrder }) {
+function OrderPage({ menus, onCreateOrder }) {
   const [cartItems, setCartItems] = useState([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleAdd = (menu, selectedOptionIds) => {
-    const options = OPTIONS.filter((option) =>
+    const options = menu.options.filter((option) =>
       selectedOptionIds.includes(option.id),
     )
     const key = [menu.id, ...options.map((option) => option.id)].join('-')
@@ -25,20 +25,31 @@ function OrderPage({ onCreateOrder }) {
     })
   }
 
-  const handleOrder = () => {
-    onCreateOrder(cartItems)
-    alert('주문이 완료되었습니다.')
-    setCartItems([])
+  const handleOrder = async () => {
+    setIsSubmitting(true)
+    try {
+      await onCreateOrder(cartItems)
+      alert('주문이 완료되었습니다.')
+      setCartItems([])
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <main className="order-page">
       <section className="menu-list">
-        {MENUS.map((menu) => (
+        {menus.map((menu) => (
           <MenuCard key={menu.id} menu={menu} onAdd={handleAdd} />
         ))}
       </section>
-      <Cart items={cartItems} onOrder={handleOrder} />
+      <Cart
+        items={cartItems}
+        onOrder={handleOrder}
+        isSubmitting={isSubmitting}
+      />
     </main>
   )
 }
