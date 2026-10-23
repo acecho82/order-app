@@ -3,7 +3,7 @@ import MenuCard from '../components/MenuCard'
 import Cart from '../components/Cart'
 import { MENUS, OPTIONS } from '../data/menus'
 
-function OrderPage() {
+function OrderPage({ onCreateOrder }) {
   const [cartItems, setCartItems] = useState([])
 
   const handleAdd = (menu, selectedOptionIds) => {
@@ -26,6 +26,7 @@ function OrderPage() {
   }
 
   const handleOrder = () => {
+    onCreateOrder(cartItems)
     alert('주문이 완료되었습니다.')
     setCartItems([])
   }

@@ -1,0 +1,21 @@
+export const ORDER_STATUS = {
+  RECEIVED: 'received',
+  IN_PROGRESS: 'inProgress',
+  COMPLETED: 'completed',
+}
+
+export const ORDER_STATUS_LABELS = {
+  [ORDER_STATUS.RECEIVED]: '주문 접수',
+  [ORDER_STATUS.IN_PROGRESS]: '제조 중',
+  [ORDER_STATUS.COMPLETED]: '제조 완료',
+}
+
+export const NEXT_ORDER_STATUS = {
+  [ORDER_STATUS.RECEIVED]: ORDER_STATUS.IN_PROGRESS,
+  [ORDER_STATUS.IN_PROGRESS]: ORDER_STATUS.COMPLETED,
+}
+
+export const NEXT_ACTION_LABELS = {
+  [ORDER_STATUS.RECEIVED]: '제조 시작',
+  [ORDER_STATUS.IN_PROGRESS]: '제조 완료',
+}
