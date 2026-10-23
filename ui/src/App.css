@@ -117,6 +117,7 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 3 / 2;
+  overflow: hidden;
   background: linear-gradient(135deg, #c8a27a, #6f4e37);
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
